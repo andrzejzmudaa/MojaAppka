@@ -1,5 +1,6 @@
 package RysowanieEkranu;
 
+import Arkanoid.GameScene;
 import Kulki.DrawMainScene;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -25,7 +26,7 @@ public class MenuGlowne extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        przyciskWyboru.getItems().addAll("Kulki", "Option 5", "Option 6");
+        przyciskWyboru.getItems().addAll("Kulki", "Arkanoid", "Option 6");
         stage.setMinHeight(800);
         stage.setMinWidth(600);
 
@@ -36,8 +37,12 @@ public class MenuGlowne extends Application {
 
 
         stage.setScene(MenuGlowne);
-        stage.show();
 
+        //Temporary to skip choosing
+        //GameScene.DrawScene(stage);
+
+        stage.show();
+        GameScene.DrawScene(stage);
         przyciskUruchom.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -45,6 +50,8 @@ public class MenuGlowne extends Application {
                 String wybranyEkran = przyciskWyboru.getValue();
                 if (wybranyEkran.equals(przyciskWyboru.getItems().get(0)))
                     DrawMainScene.DrawScene(stage);
+                else if (wybranyEkran.equals(przyciskWyboru.getItems().get(1)))
+                    GameScene.DrawScene(stage);
 
             }
         });
