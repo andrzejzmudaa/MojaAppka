@@ -13,6 +13,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 
 public class GameScene {
@@ -101,7 +102,7 @@ public class GameScene {
         GameWindowLayout.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                System.out.println("Key Code pressed: "+event.getEventType());
+                //System.out.println("Key Code pressed: "+event.getEventType());
                 switch (event.getCode()) {
                     case UP:    arrowUP.isActive = true; event.consume(); break;
                     case DOWN:  arrowDOWN.isActive = true; event.consume(); break;
@@ -119,7 +120,7 @@ public class GameScene {
         GameWindowLayout.setOnKeyReleased(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                System.out.println("Key Code released: "+event.getEventType());
+                //System.out.println("Key Code released: "+event.getEventType());
                 switch (event.getCode()) {
                     case UP:    arrowUP.isActive = false; break;
                     case DOWN:  arrowDOWN.isActive = false; break;
@@ -131,10 +132,17 @@ public class GameScene {
         });
 
 
+
+
         //Test
 
         //buttonStartGroup.setBackground(new Background(new BackgroundFill(Color.AQUA,null,null)));
-
+        GameStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent windowEvent) {
+                System.exit(0);
+            }
+        });
         GameStage.setScene(gameScene);
         GameStage.centerOnScreen();
         GameStage.show();
