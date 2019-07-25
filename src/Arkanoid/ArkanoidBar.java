@@ -3,17 +3,18 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 
-import static Arkanoid.GameScene.internalWindowHeight;
-import static Arkanoid.GameScene.internalWindowWidth;
+import static Arkanoid.GameScene.*;
 
 
 public class ArkanoidBar extends Rectangle {
 
-    double ArkanoidBarX=500;
-    double ArkanoidBarY=700;
+    double ArkanoidBarInitialX=500;
+    double ArkanoidBarInitialY=700;
+    double ArkanoidBarX=ArkanoidBarInitialX;
+    double ArkanoidBarY=ArkanoidBarInitialY;
     final double ArkanoidBarWidth=200;
     final double ArkanoidBarHeight=20;
-    double ArkanoidBarSpeed=1; // These parameter sets speeed of Bar Movement
+    double ArkanoidBarSpeed=10; // These parameter sets speeed of Bar Movement
 
     ArkanoidBar(){
         //Setting initial parameters
@@ -29,6 +30,7 @@ public class ArkanoidBar extends Rectangle {
         //ds.setOffsetX(5.0);
         ds.setColor(Color.GRAY);
         //this.setEffect(ds);
+        //
 
 
 
@@ -36,7 +38,8 @@ public class ArkanoidBar extends Rectangle {
 
     void moveArkanoidBar(AnimatedArrow incoomingAnimatedArrow){
         incoomingAnimatedArrow.checkArrowColor();
-        if (incoomingAnimatedArrow.checkArrowDirection()==1&&incoomingAnimatedArrow.isActive&&ArkanoidBarY-ArkanoidBarSpeed>0)
+        //System.out.println(ArkanoidBarY-ArkanoidBarSpeed);
+        if (incoomingAnimatedArrow.checkArrowDirection()==1&&incoomingAnimatedArrow.isActive&&ArkanoidBarY-ArkanoidBarSpeed>=0)
             this.setY(ArkanoidBarY=ArkanoidBarY - ArkanoidBarSpeed);
         else if (incoomingAnimatedArrow.checkArrowDirection()==2&&incoomingAnimatedArrow.isActive&&ArkanoidBarY+ArkanoidBarHeight+ArkanoidBarSpeed<internalWindowHeight)
             this.setY(ArkanoidBarY=ArkanoidBarY+ArkanoidBarSpeed);
@@ -47,7 +50,14 @@ public class ArkanoidBar extends Rectangle {
 
 
         //System.out.println("Pozycja BarX :"+ArkanoidBarX);
-        System.out.println("Pozycja BarY :"+ArkanoidBarY);
+        //System.out.println("Pozycja BarY :"+ArkanoidBarY);
+    }
+
+    public void setInitialPosition(){
+        this.setX(ArkanoidBarX=ArkanoidBarInitialX);
+        this.setY(ArkanoidBarY=ArkanoidBarInitialY);
+
+
     }
 
 

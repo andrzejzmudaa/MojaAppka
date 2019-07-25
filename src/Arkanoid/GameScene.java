@@ -18,7 +18,7 @@ import javafx.stage.WindowEvent;
 
 public class GameScene {
     //Internal window dimenssions and Layout
-    static Pane GameLayout = new Pane();
+    public static Pane GameLayout = new Pane();
     final static double internalWindowHeight = 764;
     final static double internalWindowWidth = 1200;
     //External window dimenssions and Layout
@@ -28,6 +28,7 @@ public class GameScene {
     //Start Button
     public static volatile boolean gameRunCommand=false;
     public static Button buttonStart = new Button("Start");
+    public static Button buttonReset = new Button("Reset");
     public static HBox buttonStartGroup = new HBox(20);
     //AnimatedArrows
     final static double arrowMargins=20;
@@ -43,6 +44,8 @@ public class GameScene {
     //Constructor of GameScene class
     //These function will contain all functions running
     GameScene(){
+        GameThread GameThread = new GameThread();
+        Thread GameRunning = new Thread(GameThread);
 
         GameScene.buttonStart.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -57,8 +60,16 @@ public class GameScene {
             }
         });
 
-        GameThread GameThread = new GameThread();
-        Thread GameRunning = new Thread(GameThread);
+        GameScene.buttonReset.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                if (gameRunCommand)
+                    gameRunCommand=!gameRunCommand;
+                buttonStart.setText("Start");
+                GameThread.setObjectsInitialPosition=true;
+            }
+        });
+
         GameRunning.start();
 
 
@@ -73,14 +84,15 @@ public class GameScene {
 
 
     public static void DrawScene(Stage GameStage){
-        //Create instance of GameScene
-        new GameScene();
+
         //Setting external window Size
         GameStage.setMinHeight(externalWindowHeight);
         GameStage.setMinWidth(externalWindowWidth);
         //Setting Start button
         buttonStart.setPrefSize(200,50);
+        buttonReset.setPrefSize(200,50);
         buttonStartGroup.getChildren().add(buttonStart);
+        buttonStartGroup.getChildren().add(buttonReset);
         buttonStartGroup.setAlignment(Pos.CENTER);
         buttonStartGroup.setPadding(new Insets(10,10,10,10));
         GameWindowLayout.setBottom(buttonStartGroup);
@@ -117,6 +129,8 @@ public class GameScene {
 
 
 
+
+
         GameWindowLayout.setOnKeyReleased(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
@@ -145,7 +159,10 @@ public class GameScene {
         });
         GameStage.setScene(gameScene);
         GameStage.centerOnScreen();
+
         GameStage.show();
+        //Create instance of GameScene
+        new GameScene();
 
 
 
