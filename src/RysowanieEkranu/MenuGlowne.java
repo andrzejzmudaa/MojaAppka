@@ -1,8 +1,10 @@
 package RysowanieEkranu;
 
 import Arkanoid.GameScene;
+import Bluetooth.BluetoothHandling;
 import Bluetooth.BluetoothScreen;
 import Kulki.DrawMainScene;
+import USB.USBScreen;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -27,7 +29,7 @@ public class MenuGlowne extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        przyciskWyboru.getItems().addAll("Kulki", "Arkanoid", "Bluetooth test");
+        przyciskWyboru.getItems().addAll("Kulki", "Arkanoid", "Bluetooth test","USB App");
         stage.setMinHeight(800);
         stage.setMinWidth(600);
 
@@ -43,7 +45,7 @@ public class MenuGlowne extends Application {
         //GameScene.DrawScene(stage);
 
         stage.show();
-        //GameScene.DrawScene(stage);
+        USBScreen.DrawScene(stage);
         przyciskUruchom.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -55,9 +57,12 @@ public class MenuGlowne extends Application {
                     GameScene.DrawScene(stage);
                 else if (wybranyEkran.equals(przyciskWyboru.getItems().get(2)))
                     BluetoothScreen.DrawScene(stage);
+                else if (wybranyEkran.equals(przyciskWyboru.getItems().get(3)))
+                    USBScreen.DrawScene(stage);
 
             }
         });
+
 
 
 
