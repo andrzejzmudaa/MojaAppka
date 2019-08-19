@@ -5,7 +5,7 @@ import org.usb4java.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-public class PS3PAD_USB implements Runnable {
+public class PS3PAD_USB extends PS3_PAD implements Runnable {
     // bmRequestType USB Setup Package Constants
     // https://www.beyondlogic.org/usbnutshell/usb6.shtml#StandardInterfaceRequests
     //	D7 Data Phase Transfer Direct ion
@@ -50,13 +50,16 @@ public class PS3PAD_USB implements Runnable {
             (byte)0x0,(byte)0x32,(byte)0xFF,(byte)0x27,(byte)0x10,(byte)0x0,(byte)0x32,(byte)0xFF,(byte)0x27,(byte)0x10,
             (byte)0x0,(byte)0x32,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,
             (byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0};
-    final static byte[] LED_MESSAGE_FRAME=
+    final static byte[] LED_RUMBLE_MESSAGE_FRAME=
             {(byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
             (byte)0x00, (byte)0x02, (byte)0xff, (byte)0x27, (byte)0x10, (byte)0x00, (byte)0x32, (byte)0xff,
             (byte)0x27, (byte)0x10, (byte)0x00, (byte)0x32, (byte)0xff, (byte)0x27, (byte)0x10, (byte)0x00,
             (byte)0x32, (byte)0xff, (byte)0x27, (byte)0x10, (byte)0x00, (byte)0x32, (byte)0x00, (byte)0x00,
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00};
+
+
+    //Buttons Values :
 
 
     int status;
@@ -69,8 +72,6 @@ public class PS3PAD_USB implements Runnable {
 
     public PS3PAD_USB(){
 
-        byte test = DEVICE_TO_HOST|CLASS|INTERFACE;
-        System.out.println(String.format(" %x",test));
         status = LibUsb.init(context);
         if (status != LibUsb.SUCCESS) throw new LibUsbException("Unable to initialize libusb.", status);
         findAllDevices();
@@ -91,16 +92,10 @@ public class PS3PAD_USB implements Runnable {
             //dsiplayBluetoothHostAdress();
             enablePS3Pad();
             setLED(6);
-
-
-
-
-
-
-
+            setRumble((byte)5,(byte)255,(byte)5,(byte)20);
         }
 
-        public void getRawPS3PadData() {
+        public void printRawPS3PadData() {
             if(!enabled){
                 System.out.println("PS3 Pad not enabled");
                 return;
@@ -112,23 +107,52 @@ public class PS3PAD_USB implements Runnable {
             printDataBuffer(dataBuffer,0x31);
         }
 
+    public byte[] getRawPS3PadData() {
+        if(!enabled){
+            System.out.println("PS3 Pad not enabled");
+            return null;
+        }
+        dataBuffer = ByteBuffer.allocateDirect(0x31);
+        dataIntBuffer = IntBuffer.allocate(31);
+        status= LibUsb.interruptTransfer(ps3Pad,OUTPUT_ENDPOINT,dataBuffer,dataIntBuffer,0);
+        if(status!=0)
+        System.out.println("Interrupt transfer status : "+status);
+        byte[] dataToReturn = new byte[31];
+        for(int i=0;i<31;i++)
+            dataToReturn[i]=dataBuffer.get(i);
+        return dataToReturn;
+    }
+
         public void setLED(int i){
             byte[] ledpattern = {0x02, 0x04, 0x08, 0x10, 0x12, 0x14, 0x18 };
-            byte[] LEDFrameToSend = LED_MESSAGE_FRAME;
+            byte[] LEDFrameToSend = LED_RUMBLE_MESSAGE_FRAME;
             if (i < 7) LEDFrameToSend[9] = ledpattern[i];
             dataBuffer = ByteBuffer.allocateDirect(LEDFrameToSend.length);
             for (byte b : LEDFrameToSend) {
                 dataBuffer.put(b);
-        }
+            }
         status = LibUsb.controlTransfer(ps3Pad, (byte)(HOST_TO_DEVICE|CLASS|INTERFACE), SET_CONFIGURATION, (short) 0x0201, (short) 0, dataBuffer, 0);
         printDataBuffer(dataBuffer,LEDFrameToSend.length);
+        }
+
+        public void setRumble(byte duration_right,byte power_right,byte duration_left,byte power_left){
+
+        byte[] rumbleSettings = LED_RUMBLE_MESSAGE_FRAME;
+            rumbleSettings[1] = duration_right;
+            rumbleSettings[2] = power_right;
+            rumbleSettings[3] = duration_left;
+            rumbleSettings[4] = power_left;
+            dataBuffer = ByteBuffer.allocateDirect(rumbleSettings.length);
+            for (byte b : rumbleSettings) {
+                dataBuffer.put(b);
+            }
+            status = LibUsb.controlTransfer(ps3Pad, (byte)(HOST_TO_DEVICE|CLASS|INTERFACE), SET_CONFIGURATION, (short) 0x0201, (short) 0, dataBuffer, 0);
+            printDataBuffer(dataBuffer,rumbleSettings.length);
 
 
 
 
-
-
-    }
+        }
 
     public void setBluetoothHostAdress(byte[] byteBluetoothAdress){
         int i=0;
@@ -230,6 +254,19 @@ public class PS3PAD_USB implements Runnable {
 
     @Override
     public void run() {
+
+        while(true) {
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            this.updateButtonsValue(this.getRawPS3PadData());
+            //this.printRawPS3PadData();
+
+        }
+
 
     }
 }

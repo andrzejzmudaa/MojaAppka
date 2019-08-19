@@ -19,16 +19,16 @@ public class USBScreen {
     public static Scene USBScene = new Scene(WindowLayout,WindowHeight,WindowWidth);
     public static Button searchButton = new Button("USB Device");
     public static Button closeButton = new Button("Close App");
-
-
-
-
+    PS3PAD_USB ps3PAD = new PS3PAD_USB();
+    Thread ps3Handling = new Thread(ps3PAD);
 
 
     public static void DrawScene(Stage USBhStage) {
 
+        USBScreen screen = new USBScreen();
 
-        PS3PAD_USB ps3 = new PS3PAD_USB();
+
+
         USBhStage.setMinHeight(WindowHeight);
         USBhStage.setMinWidth(WindowWidth);
         USBhStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
@@ -44,10 +44,12 @@ public class USBScreen {
         USBhStage.centerOnScreen();
         USBhStage.show();
 
+
         searchButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-            ps3.getRawPS3PadData();
+                //ps3PAD.printRawPS3PadData();
+
             }
         });
         closeButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -63,6 +65,11 @@ public class USBScreen {
 
 
 
+
+    }
+
+    USBScreen(){
+        ps3Handling.start();
 
     }
 
