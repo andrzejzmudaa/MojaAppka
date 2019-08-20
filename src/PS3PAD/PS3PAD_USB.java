@@ -5,7 +5,7 @@ import org.usb4java.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-public class PS3PAD_USB extends PS3_PAD implements Runnable {
+public class PS3PAD_USB  extends PS3_PAD  implements Runnable  {
     // bmRequestType USB Setup Package Constants
     // https://www.beyondlogic.org/usbnutshell/usb6.shtml#StandardInterfaceRequests
     //	D7 Data Phase Transfer Direct ion
@@ -81,6 +81,7 @@ public class PS3PAD_USB extends PS3_PAD implements Runnable {
             System.out.println("PS3Pad not connected");
             return;
         }
+        LibUsb.resetDevice(ps3Pad);
         // bConfigurationValue = 1 **Configuration nr 1 , please check ConfigurationDescriptor
         status=LibUsb.setConfiguration(ps3Pad,1);
         System.out.println("SetConfiguration status : "+status);  // 0 if OK
@@ -242,6 +243,14 @@ public class PS3PAD_USB extends PS3_PAD implements Runnable {
 
 
     }
+    public void disconnectPad(){
+        LibUsb.releaseInterface(ps3Pad,0);
+        LibUsb.resetDevice(ps3Pad);
+        LibUsb.close(ps3Pad);
+        LibUsb.exit(context);
+
+
+    }
 
     void printDataBuffer(ByteBuffer incommingBuffer,int bufferSize){
         System.out.println("Printed buffer size "+bufferSize);
@@ -253,7 +262,7 @@ public class PS3PAD_USB extends PS3_PAD implements Runnable {
 
 
     @Override
-    public void run() {
+    public void run()  {
 
         while(true) {
 
@@ -262,7 +271,11 @@ public class PS3PAD_USB extends PS3_PAD implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            this.updateButtonsValue(this.getRawPS3PadData());
+            try {
+                this.updateButtonsValue(this.getRawPS3PadData());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             //this.printRawPS3PadData();
 
         }
